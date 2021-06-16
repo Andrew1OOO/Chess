@@ -127,8 +127,9 @@ def find_all_moves(board, origin):
         except(IndexError):
             print("index error")
             pass
-    
+    print("piece ---", str(piece) + "comparison --- ", bcolors.OKCYAN + "Q " + bcolors.ENDC)
     if(piece == bcolors.OKCYAN + "R " + bcolors.ENDC or piece == bcolors.OKGREEN + "R " + bcolors.ENDC or piece == bcolors.OKCYAN + "Q " + bcolors.ENDC or piece == bcolors.OKGREEN + "Q " + bcolors.ENDC):
+            print("horizontalklkdfglk;df")
             while(vertical_move == "0 " and origin[0]+i <= 7): 
                 vertical_move = board[origin[0]+i][origin[1]]
                 if vertical_move == "0 ":
@@ -145,12 +146,13 @@ def find_all_moves(board, origin):
                 if horizontal_move == "0 ":
                     v_moves.append((origin[0],origin[1]+j))
                 j += 1
-            while(horizontal_move_1 == "0 " and origin[1]-l > 0):
+            while(horizontal_move_1 == "0 " and origin[1]-l >= 0):
                 horizontal_move_1 = board[origin[0]][origin[1]-l]
                 if horizontal_move_1 == "0 ":
                     v_moves.append((origin[0],origin[1]-l))
                 l += 1
     if(piece == bcolors.OKCYAN + "B " + bcolors.ENDC or piece == bcolors.OKGREEN + "B " + bcolors.ENDC or piece == bcolors.OKCYAN + "Q " + bcolors.ENDC or piece == bcolors.OKGREEN + "Q " + bcolors.ENDC):
+        print("diagonal")
         left_move_up = "0 "
         left_move_down = "0 "
         right_move_up = "0 "
@@ -170,6 +172,7 @@ def find_all_moves(board, origin):
                 v_moves.append((origin[0]-k,origin[1]-k))
             k += 1
         while(right_move_up == "0 " and origin[0]+j <= 7 and origin[1]+j <= 7):
+            print(right_move_up)
             right_move_up = board[origin[0]+j][origin[1]+j]
             if right_move_up == "0 ":
                 v_moves.append((origin[0]+j,origin[1]+j))
@@ -184,7 +187,7 @@ def find_all_moves(board, origin):
         for o in range(len(moves)):
             try:
                 if(moves[o][0] <=7 and moves[o][1] <=7):
-                    print(moves[o])
+                    
                     v_moves.append(moves[o])
             except(IndexError):
                 pass
@@ -225,18 +228,43 @@ def game_finished():
 board = create(8)
 put_pieces(board)
 print_b(board)
-
-
+count = 0
 while game_finished() != True:
-    origin = input("What piece do you want to move?")
-    e_origin = encrypt_1(origin)
-    list1 = find_all_moves(board, e_origin)
-    for i in range(len(list1)):
-        board[list1[i][0]][list1[i][1]] = bcolors.HEADER + board[list1[i][0]][list1[i][1]] + bcolors.ENDC
-    print_b(board)
-    move = input("What move do you want to make?")
-    move_piece(board,origin,move, list1)
-    repaint(board)
-    print_b(board)
+    if count % 2 == 0:
+        origin = input("Blue's turn, What is the origin of your move?")
+        e_origin = encrypt_1(origin)
+        while('\033[96m' not in board[e_origin[0]][e_origin[1]]):
+            origin = input("Blue's turn, not Green's, re-input origin")
+            e_origin = encrypt_1(origin)
+
+        list1 = find_all_moves(board, e_origin)
+        print("all moves", list1)
+        for i in range(len(list1)):
+            board[list1[i][0]][list1[i][1]] = bcolors.HEADER + board[list1[i][0]][list1[i][1]] + bcolors.ENDC
+        print_b(board)
+        move = input("What move do you want to make?")
+
+        while tuple(encrypt_1(move)) not in list1:
+            move = input("Invalid move, input again.")
+        move_piece(board,origin,move, list1)
+        repaint(board)
+        print_b(board)
+    else:
+        origin = input("Greens turn, what is the origin of your move?")
+        e_origin = encrypt_1(origin)
+        while('\033[92m' not in board[e_origin[0]][e_origin[1]]):
+            origin = input("Green's turn, not Blue's, re-input origin")
+            e_origin = encrypt_1(origin)
+        list1 = find_all_moves(board, e_origin)
+        for i in range(len(list1)):
+            board[list1[i][0]][list1[i][1]] = bcolors.HEADER + board[list1[i][0]][list1[i][1]] + bcolors.ENDC
+        print_b(board)
+        move = input("What move do you want to make?")
+        while tuple(encrypt_1(move)) not in list1:
+            move = input("Invalid move, input again.")
+        move_piece(board,origin,move, list1)
+        repaint(board)
+        print_b(board)
+    count += 1
     
 
