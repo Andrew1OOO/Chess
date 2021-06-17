@@ -288,9 +288,9 @@ def encrypt(board,origin, move):
     move2 = [0,0]
     for i in range(len(list1)):
     
-        if(str(split(origin)[0]) == list1[i]):
+        if(str(split(origin)[0]).upper() == list1[i]):
             origin2[1] = i
-        if(str(split(move)[0]) == list1[i]):
+        if(str(split(move)[0]).upper() == list1[i]):
             move2[1] = i
     origin2[0] = int(split(origin)[1]) -1
     move2[0] = int(split(move)[1]) - 1
@@ -300,27 +300,51 @@ def encrypt(board,origin, move):
 def encrypt_1(origin):
     list1 = ["A","B","C","D","E","F","G","H"]
     origin2 = [0,0]
-    if(str(split(origin)[0]) in list1):
-        origin2[1] = list1.index(str(split(origin)[0]))
+    
+    if(str(split(origin)[0]).upper() in list1):
+        origin2[1] = list1.index(str(split(origin)[0]).upper())
 
     origin2[0] = int(split(origin)[1]) - 1
-
+    
     return origin2
 
 def split(word):
     return [char for char in word]
 
-def game_finished(board, king_pos):
-    return (check() and find_all_moves(board, king_pos)  == [])
-def check():
+def game_finished(board, white_king_pos, black_king_pos):
+    return False
+'''    if(white_check() and find_all_moves(board, white_king_pos) == []):
+        return True
+    elif(black_check() and find_all_moves(board, black_king_pos) == []):
+        return True'''
+    
+    #TODO: need to check the surrounding squares to see if they are in check, making checkmate instead of seeing if there are no moves
+    
+def find_wKing(board):
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if(board[i][j] == bcolors.OKCYAN + "♔ " + bcolors.ENDC):
+                return (i,j)
+
+def find_bKing(board):
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if(board[i][j] == bcolors.OKGREEN + "♚ " + bcolors.ENDC):
+                return (i,j)
+
+def white_check():
+    return False
+
+def black_check():
     return False
 board = create(8)
 put_pieces(board)
 print_b(board)
 count = 0
-king_pos = (0,0)
+w_king = find_wKing(board)
+b_king = find_bKing(board)
 
-while game_finished(board, king_pos) != True:
+while game_finished(board, w_king, b_king) != True:
     if count % 2 == 0:
         origin = input("Blue's turn, What is the origin of your move?")
         e_origin = encrypt_1(origin)
