@@ -56,6 +56,7 @@ def find_all_moves(board, origin):
     horizontal_move = "0"
     vertical_move_1 = "0"
     horizontal_move_1 = "0"
+    end = False
     
     if(piece == "♙"):
         try:
@@ -92,25 +93,45 @@ def find_all_moves(board, origin):
     if(piece == "♖" or piece == "♜" or piece == "♕" or piece == "♛"):
             while(vertical_move == "0" and origin[0]+i <= 7): 
                 vertical_move = board[origin[0]+i][origin[1]]
-                if vertical_move == "0":
+                if(vertical_move != "0"):
+                    end = True
+                if vertical_move == "0" or end:
                     v_moves.append((origin[0]+i,origin[1]))
+                if(end):
+                    break
                 i += 1
+            end = False
             while((vertical_move_1 == "0") and origin[0]-k <= 7): 
                 #print(str(board[origin[0]-k][origin[1]]) + "- " +str((origin[0]-k,origin[1])))
                 vertical_move_1 = board[origin[0]-k][origin[1]]
-                if vertical_move_1 == "0":
+                if(vertical_move_1 != "0"):
+                    end = True
+                if vertical_move_1 == "0" or end:
                     v_moves.append((origin[0]-k,origin[1]))
+                if(end):
+                    break
                 k += 1
+            end = False
             while((horizontal_move == "0") and origin[1]+j <= 7):
                 horizontal_move = board[origin[0]][origin[1]+j]
-                if horizontal_move == "0":
+                if(horizontal_move != "0"):
+                    end = True
+                if horizontal_move == "0" or end:
                     v_moves.append((origin[0],origin[1]+j))
+                if(end):
+                    break
                 j += 1
+            end = False
             while(origin[1]-l >= 0 and (horizontal_move_1 == "0")):
                 horizontal_move_1 = board[origin[0]][origin[1]-l]
-                if horizontal_move_1 == "0":
+                if(horizontal_move_1 != "0"):
+                    end = True
+                if horizontal_move_1 == "0" or end:
                     v_moves.append((origin[0],origin[1]-l))
+                if(end):
+                    break
                 l += 1
+    end = False
     if(piece =="♗" or piece == "♝" or piece ==  "♕" or piece == "♛"):
         i = 1
         j = 1
@@ -132,7 +153,7 @@ def find_all_moves(board, origin):
             left_move_up = board[origin[0]+i][origin[1]-i]
             if(left_move_up != "0"):
                 end = True
-            if left_move_up == "0"or end == True:
+            if left_move_up == "0" or end == True:
                 v_moves.append((origin[0]+i,origin[1]-i))
             i += 1
             if(end):
@@ -183,7 +204,7 @@ def find_all_moves(board, origin):
                 pass
 
     if(piece == "♔" or piece == "♚"):
-        moves = [(origin[0]+1, origin[1]), (origin[0]+1, origin[1]+1),(origin[0]+1, origin[1]-1), (origin[0], origin[1]-1), (origin[0], origin[1]+1), (origin[0]-1, origin[1]), (origin[0]-1, origin[1]-1), (origin[0]-1, origin[1]-1)]
+        moves = [(origin[0]+1, origin[1]), (origin[0]+1, origin[1]+1),(origin[0]+1, origin[1]-1), (origin[0], origin[1]-1), (origin[0], origin[1]+1), (origin[0]-1, origin[1]), (origin[0]-1, origin[1]-1), (origin[0]-1, origin[1]+1)]
         for g in range(len(moves)):
             try:
                 if(moves[g][0] <=7 and moves[g][0] >= 0 and moves[g][1] <=7 and moves[g][1] >= 0):
