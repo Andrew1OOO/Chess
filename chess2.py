@@ -47,7 +47,8 @@ def find_all_moves(board, origin):
     v_moves = []
     piece = board[origin[0]][origin[1]]
     
-    
+    white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
+    black_pieces = ["♚", "♛", "♝", "♞", "♜", "♟︎"]
     i = 1
     j = 1
     k = 1
@@ -60,11 +61,12 @@ def find_all_moves(board, origin):
     
     if(piece == "♙"):
         try:
-            v_moves.append((origin[0]+1,origin[1]))
-            v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
-            if board[origin[0]+1][origin[1]+1] != "0":
+            if(board[origin[0]+1][origin[1]] == "0"):
+                v_moves.append((origin[0]+1,origin[1]))
+                v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
+            if board[origin[0]+1][origin[1]+1] != "0" and board[origin[0]+1][origin[1]+1] not in white_pieces:
                 v_moves.append((origin[0]+1,origin[1]+1))
-            if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0:
+            if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0 and board[origin[0]+1][origin[1]-1] not in white_pieces:
                 v_moves.append((origin[0]+1,origin[1]-1))
         except(IndexError):
             print("index error")
@@ -75,16 +77,18 @@ def find_all_moves(board, origin):
         try:
             
             if(origin[0]-1 >= 0):
-                v_moves.append((origin[0]-1,origin[1]))
+                if(board[origin[0]-1][origin[1]] == "0"):
+                    v_moves.append((origin[0]-1,origin[1]))
                 try:
-                    if board[origin[0]-1][origin[1]+1] != "0" and origin[1]+1 <= 7 and origin[0]-1 >= 0:
+                    if board[origin[0]-1][origin[1]+1] != "0" and origin[1]+1 <= 7 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]+1] not in black_pieces:
                         v_moves.append((origin[0]-1,origin[1]+1))
                 except:
                     pass
             
             if(origin[0]-2 >= 0):
-                v_moves.append((origin[0]-2,origin[1]))
-            if board[origin[0]-1][origin[1]-1] != "0" and origin[1]-1 >= 0 and origin[0]-1 >= 0:
+                if(board[origin[0]-2][origin[1]] == "0"):
+                    v_moves.append((origin[0]-2,origin[1]))
+            if board[origin[0]-1][origin[1]-1] != "0" and origin[1]-1 >= 0 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]-1] not in black_pieces:
                 v_moves.append((origin[0]-1,origin[1]-1))
         except(IndexError):
             print("index error")
@@ -95,8 +99,12 @@ def find_all_moves(board, origin):
                 vertical_move = board[origin[0]+i][origin[1]]
                 if(vertical_move != "0"):
                     end = True
-                if vertical_move == "0" or end:
-                    v_moves.append((origin[0]+i,origin[1]))
+                if(piece == "♖" or piece == "♕"):
+                    if vertical_move == "0" or end and vertical_move not in white_pieces:
+                        v_moves.append((origin[0]+i,origin[1]))
+                if(piece == "♜" or piece == "♛"):
+                    if vertical_move == "0" or end and vertical_move not in black_pieces:
+                        v_moves.append((origin[0]+i,origin[1]))
                 if(end):
                     break
                 i += 1
@@ -106,8 +114,12 @@ def find_all_moves(board, origin):
                 vertical_move_1 = board[origin[0]-k][origin[1]]
                 if(vertical_move_1 != "0"):
                     end = True
-                if vertical_move_1 == "0" or end:
-                    v_moves.append((origin[0]-k,origin[1]))
+                if(piece == "♖" or piece == "♕"):
+                    if vertical_move_1 == "0" or end and vertical_move_1 not in white_pieces:
+                        v_moves.append((origin[0]-k,origin[1]))
+                if(piece == "♜" or piece == "♛"):
+                    if vertical_move_1 == "0" or end and vertical_move_1 not in black_pieces:
+                        v_moves.append((origin[0]-k,origin[1]))
                 if(end):
                     break
                 k += 1
@@ -116,8 +128,12 @@ def find_all_moves(board, origin):
                 horizontal_move = board[origin[0]][origin[1]+j]
                 if(horizontal_move != "0"):
                     end = True
-                if horizontal_move == "0" or end:
-                    v_moves.append((origin[0],origin[1]+j))
+                if(piece == "♖" or piece == "♕"):
+                    if horizontal_move == "0" or end and horizontal_move not in white_pieces:
+                        v_moves.append((origin[0],origin[1]+j))
+                if(piece == "♜" or piece == "♛"):
+                    if horizontal_move == "0" or end and horizontal_move not in black_pieces:
+                        v_moves.append((origin[0],origin[1]+j))
                 if(end):
                     break
                 j += 1
@@ -126,8 +142,12 @@ def find_all_moves(board, origin):
                 horizontal_move_1 = board[origin[0]][origin[1]-l]
                 if(horizontal_move_1 != "0"):
                     end = True
-                if horizontal_move_1 == "0" or end:
-                    v_moves.append((origin[0],origin[1]-l))
+                if(piece == "♖" or piece == "♕"):
+                    if horizontal_move_1 == "0" or end and horizontal_move_1 not in white_pieces:
+                        v_moves.append((origin[0],origin[1]-l))
+                if(piece == "♜" or piece == "♛"):
+                    if horizontal_move_1 == "0" or end and horizontal_move_1 not in black_pieces:
+                        v_moves.append((origin[0],origin[1]-l))
                 if(end):
                     break
                 l += 1
@@ -153,8 +173,12 @@ def find_all_moves(board, origin):
             left_move_up = board[origin[0]+i][origin[1]-i]
             if(left_move_up != "0"):
                 end = True
-            if left_move_up == "0" or end == True:
-                v_moves.append((origin[0]+i,origin[1]-i))
+            if(piece == "♗" or piece == "♕"):
+                if left_move_up == "0" or end and left_move_up not in white_pieces:
+                    v_moves.append((origin[0]+i,origin[1]-i))
+            if(piece == "♝" or piece == "♛"):
+                if left_move_up == "0" or end and left_move_up not in black_pieces:
+                    v_moves.append((origin[0]+i,origin[1]-i))
             i += 1
             if(end):
                 break
@@ -164,8 +188,12 @@ def find_all_moves(board, origin):
             left_move_down = board[origin[0]-k][origin[1]-k]
             if(left_move_down != "0"):
                 end = True
-            if left_move_down == "0" or end == True:
-                v_moves.append((origin[0]-k,origin[1]-k))
+            if(piece == "♗" or piece == "♕"):
+                if left_move_down == "0" or end and left_move_down not in white_pieces:
+                    v_moves.append((origin[0]-k,origin[1]-k))
+            if(piece == "♝" or piece == "♛"):
+                if left_move_down == "0" or end and left_move_down not in black_pieces:
+                    v_moves.append((origin[0]-k,origin[1]-k))
             k += 1
             if(end):
                 break
@@ -175,9 +203,13 @@ def find_all_moves(board, origin):
             right_move_up = board[origin[0]+j][origin[1]+j]
             if(right_move_up != "0"):
                 end = True
-            if right_move_up == "0" or end == True:
-                print(origin[0]+j,origin[1]+j)
-                v_moves.append((origin[0]+j,origin[1]+j))
+            if(piece == "♗" or piece == "♕"):
+                if (right_move_up == "0" or end) and right_move_up not in white_pieces:
+                    v_moves.append((origin[0]+j,origin[1]+j))
+            
+            if(piece == "♝" or piece == "♛"):
+                if (right_move_up == "0" or end) and right_move_up not in black_pieces:
+                    v_moves.append((origin[0]+j,origin[1]+j)) 
             j += 1
             if(end):
                 break
@@ -187,8 +219,12 @@ def find_all_moves(board, origin):
             right_move_down = board[origin[0]-l][origin[1]+l]
             if(right_move_down != "0"):
                 end = True
-            if right_move_down == "0" or end == True:
-                v_moves.append((origin[0]-l,origin[1]+l))
+            if(piece == "♗" or piece == "♕"):
+                if right_move_down == "0" or end and right_move_down not in white_pieces:
+                    v_moves.append((origin[0]-l,origin[1]+l))
+            if(piece == "♝" or piece == "♛"):
+                if right_move_down == "0" or end and right_move_down not in black_pieces:
+                    v_moves.append((origin[0]-l,origin[1]+l))
             l += 1
             if(end):
                 break
@@ -198,17 +234,26 @@ def find_all_moves(board, origin):
         moves = [(origin[0]+2,origin[1]+1),(origin[0]+1,origin[1]+2),(origin[0]+2,origin[1]-1),(origin[0]+1,origin[1]-2),(origin[0]-2,origin[1]+1),(origin[0]-1,origin[1]+2),(origin[0]-2,origin[1]-1),(origin[0]-1,origin[1]-2)]
         for o in range(len(moves)):
             try:
-                if(moves[o][0] <=7 and moves[o][0] >= 0 and moves[o][1] <=7 and moves[o][1] >= 0):
-                    v_moves.append(moves[o])
+                if(piece == "♘"):
+                    if(moves[o][0] <=7 and moves[o][0] >= 0 and moves[o][1] <=7 and moves[o][1] >= 0 and board[moves[o][0]][moves[o][1]] not in white_pieces):
+                        v_moves.append(moves[o])
+                if(piece == "♞"):
+                    if(moves[o][0] <=7 and moves[o][0] >= 0 and moves[o][1] <=7 and moves[o][1] >= 0 and board[moves[o][0]][moves[o][1]] not in black_pieces):
+                        v_moves.append(moves[o])
             except(IndexError):
                 pass
 
     if(piece == "♔" or piece == "♚"):
         moves = [(origin[0]+1, origin[1]), (origin[0]+1, origin[1]+1),(origin[0]+1, origin[1]-1), (origin[0], origin[1]-1), (origin[0], origin[1]+1), (origin[0]-1, origin[1]), (origin[0]-1, origin[1]-1), (origin[0]-1, origin[1]+1)]
         for g in range(len(moves)):
+            
             try:
-                if(moves[g][0] <=7 and moves[g][0] >= 0 and moves[g][1] <=7 and moves[g][1] >= 0):
-                    v_moves.append(moves[g])
+                if(piece == "♔"):
+                    if(moves[g][0] <=7 and moves[g][0] >= 0 and moves[g][1] <=7 and moves[g][1] >= 0 and board[moves[g][0]][moves[g][1]] not in white_pieces):
+                        v_moves.append(moves[g])
+                if(piece == "♚"):
+                    if(moves[g][0] <=7 and moves[g][0] >= 0 and moves[g][1] <=7 and moves[g][1] >= 0 and board[moves[g][0]][moves[g][1]] not in black_pieces):
+                        v_moves.append(moves[g])
             except(IndexError):
                 pass
     #print(move, " - ", v_moves, " - ", move in v_moves)
@@ -288,10 +333,12 @@ def encrypt(position):
 def decrypt(i,j):
     return 97+i*60, 105+j*60
 
-def change_rect_color(board, v_moves):
+def change_rect_color(position):
     pass
-
-
+def midpoint(i):
+    x = (i[0] + (i[0]+65))/2
+    y = (i[1]+ (i[1]+55))/2
+    return (int(x),int(y))
 board = create(8)
 put_pieces(board)
 pg.init()
@@ -316,6 +363,7 @@ for y in range(0, height, tile_size):
 game_exit = False
 origin1 = (0,0)
 v_moves = []
+move = False
 while not game_exit:
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -327,12 +375,14 @@ while not game_exit:
                 origin1 = origin
                 list1 = find_all_moves(board, origin)
                 v_moves = list1
+
             elif(event.button == 3):
                 pos2 = pg.mouse.get_pos()
                 move = encrypt(pos2)
                 if(move in v_moves):
                     board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
                     board[origin1[0]][origin1[1]] = "0"
+                    move = True
 
         
 
@@ -340,8 +390,15 @@ while not game_exit:
     screen.fill((60, 70, 90))
 
     screen.blit(background, (100, 100))
-    paint(board, screen)    
-
+    if(move):
+        move = False
+        v_moves = []
+    for i in range(len(v_moves)):
+        pg.draw.circle(screen,(128,128,128),midpoint(decrypt(v_moves[i][1],v_moves[i][0])),15)
+    
+        
+    paint(board, screen)
+    
     pg.display.update()
 
     pg.display.flip()
