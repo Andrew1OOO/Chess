@@ -1,7 +1,10 @@
 import itertools
 import pygame as pg
-from pygame import sprite
-from pygame.constants import BUTTON_RIGHT
+from pygame import Color, Rect, Surface, sprite
+from pygame import transform
+from pygame import draw
+from pygame import surface
+from pygame.constants import BLEND_RGBA_MAX, BLEND_RGB_MAX, BUTTON_RIGHT, SRCALPHA
 
 def create(size):
     board = []
@@ -63,7 +66,8 @@ def find_all_moves(board, origin):
         try:
             if(board[origin[0]+1][origin[1]] == "0"):
                 v_moves.append((origin[0]+1,origin[1]))
-                v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
+                if(origin[0] == 1):
+                    v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
             if board[origin[0]+1][origin[1]+1] != "0" and board[origin[0]+1][origin[1]+1] not in white_pieces:
                 v_moves.append((origin[0]+1,origin[1]+1))
             if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0 and board[origin[0]+1][origin[1]-1] not in white_pieces:
@@ -87,7 +91,8 @@ def find_all_moves(board, origin):
             
             if(origin[0]-2 >= 0):
                 if(board[origin[0]-2][origin[1]] == "0"):
-                    v_moves.append((origin[0]-2,origin[1]))
+                    if(origin[0] == 6):
+                        v_moves.append((origin[0]-2,origin[1]))
             if board[origin[0]-1][origin[1]-1] != "0" and origin[1]-1 >= 0 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]-1] not in black_pieces:
                 v_moves.append((origin[0]-1,origin[1]-1))
         except(IndexError):
@@ -109,7 +114,7 @@ def find_all_moves(board, origin):
                     break
                 i += 1
             end = False
-            while((vertical_move_1 == "0") and origin[0]-k <= 7): 
+            while((vertical_move_1 == "0") and origin[0]-k >= 0): 
                 #print(str(board[origin[0]-k][origin[1]]) + "- " +str((origin[0]-k,origin[1])))
                 vertical_move_1 = board[origin[0]-k][origin[1]]
                 if(vertical_move_1 != "0"):
@@ -339,14 +344,77 @@ def midpoint(i):
     x = (i[0] + (i[0]+65))/2
     y = (i[1]+ (i[1]+55))/2
     return (int(x),int(y))
+def AAfilledRoundedRect(surface,rect,color,radius=0.4):
+
+    """
+    AAfilledRoundedRect(surface,rect,color,radius=0.4)
+
+    surface : destination
+    rect    : rectangle
+    color   : rgb or rgba
+    radius  : 0 <= radius <= 1
+    """
+
+    rect         = Rect(rect)
+    color        = Color(*color)
+    alpha        = color.a
+    color.a      = 0
+    pos          = rect.topleft
+    rect.topleft = 0,0
+    rectangle    = Surface(rect.size,SRCALPHA)
+
+    circle       = Surface([min(rect.size)*3]*2,SRCALPHA)
+    draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
+    circle       = transform.smoothscale(circle,[int(min(rect.size)*radius)]*2)
+
+    radius              = rectangle.blit(circle,(0,0))
+    radius.bottomright  = rect.bottomright
+    rectangle.blit(circle,radius)
+    radius.topright     = rect.topright
+    rectangle.blit(circle,radius)
+    radius.bottomleft   = rect.bottomleft
+    rectangle.blit(circle,radius)
+
+    rectangle.fill((0,0,0),rect.inflate(-radius.w,0))
+    rectangle.fill((0,0,0),rect.inflate(0,-radius.h))
+
+    rectangle.fill(color,special_flags=BLEND_RGBA_MAX)
+    rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MAX)
+
+    return surface.blit(rectangle,pos)
+
+
+
 board = create(8)
 put_pieces(board)
 pg.init()
 
-BLACK = pg.Color(100,60,7)
-WHITE = pg.Color('white')
+BLACK = (232, 235, 239)
+WHITE = (125, 135, 150)
 
-screen = pg.display.set_mode((800, 600))
+Font=pg.font.SysFont('Corbel',  15)
+
+letter1=Font.render("a", False, (0,0,0))
+letter2=Font.render("b", False, (0,0,0))
+letter3=Font.render("c", False, (0,0,0))
+letter4=Font.render("d", False, (0,0,0))
+letter5=Font.render("e", False, (0,0,0))
+letter6=Font.render("f", False, (0,0,0))
+letter7=Font.render("g", False, (0,0,0))
+letter8=Font.render("h", False, (0,0,0))
+
+number1=Font.render("1", False, (0,0,0))
+number2=Font.render("2", False, (0,0,0))
+number3=Font.render("3", False, (0,0,0))
+number4=Font.render("4", False, (0,0,0))
+number5=Font.render("5", False, (0,0,0))
+number6=Font.render("6", False, (0,0,0))
+number7=Font.render("7", False, (0,0,0))
+number8=Font.render("8", False, (0,0,0))
+
+
+
+screen = pg.display.set_mode((680, 680))
 clock = pg.time.Clock()
 
 colors = itertools.cycle((WHITE, BLACK))
@@ -357,7 +425,11 @@ background = pg.Surface((width, height))
 for y in range(0, height, tile_size):
     for x in range(0, width, tile_size):
         rect = (x, y, tile_size, tile_size)
-        pg.draw.rect(background, next(colors), rect)
+        if((x,y) == (0,0)):
+            #pg.draw.rect(background, next(colors), rect,  2, 3)
+            AAfilledRoundedRect(background,rect,next(colors), 1)
+        else:
+            pg.draw.rect(background, next(colors), rect)
     next(colors)
 
 game_exit = False
@@ -371,6 +443,7 @@ while not game_exit:
         if event.type == pg.MOUSEBUTTONDOWN:
             if(event.button == 1):
                 pos = pg.mouse.get_pos()
+                print(pos)
                 origin = encrypt(pos)
                 origin1 = origin
                 list1 = find_all_moves(board, origin)
@@ -387,15 +460,36 @@ while not game_exit:
         
 
 
-    screen.fill((60, 70, 90))
+    screen.fill((0 ,74, 158))
 
     screen.blit(background, (100, 100))
+
+    surface.blit(letter1, (105, 100))
+    surface.blit(letter2, (165, 100))
+    surface.blit(letter3, (225, 100))
+    surface.blit(letter4, (285, 100))
+    surface.blit(letter5, (345, 100))
+    surface.blit(letter6, (405, 100))
+    surface.blit(letter7, (465, 100))
+    surface.blit(letter8, (525, 100))
+
+    surface.blit(number8, (570, 140))
+    surface.blit(number7, (570, 200))
+    surface.blit(number6, (570, 260))
+    surface.blit(number5, (570, 320))
+    surface.blit(number4, (570, 380))
+    surface.blit(number3, (570, 440))
+    surface.blit(number2, (570, 500))
+    surface.blit(number1, (570, 560))
+
+
     if(move):
         move = False
         v_moves = []
     for i in range(len(v_moves)):
-        pg.draw.circle(screen,(128,128,128),midpoint(decrypt(v_moves[i][1],v_moves[i][0])),15)
-    
+        pg.draw.circle(screen,(86, 182, 194),midpoint(decrypt(v_moves[i][1],v_moves[i][0])),15)
+        
+
         
     paint(board, screen)
     
