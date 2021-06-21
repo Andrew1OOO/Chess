@@ -500,43 +500,71 @@ def check(board, position, color):
     
     horse_checkable_positions = [(position[0]+2,position[1]+1),(position[0]+1,position[1]+2),(position[0]+2,position[1]-1),(position[0]+1,position[1]-2),(position[0]-2,position[1]+1),(position[0]-1,position[1]+2),(position[0]-2,position[1]-1),(position[0]-1,position[1]-2)]
     list2 = []
-    
     for o in range(len(horse_checkable_positions)):
-        if((horse_checkable_positions[o][0] <=7 and horse_checkable_positions[o][0] >= 0) and (horse_checkable_positions[o][1] <=7 and horse_checkable_positions[o][1] >= 0) and board[horse_checkable_positions[o][0]][horse_checkable_positions[o][1]] == "0"):
+        if((horse_checkable_positions[o][0] <=7 and horse_checkable_positions[o][0] >= 0) and (horse_checkable_positions[o][1] <=7 and horse_checkable_positions[o][1] >= 0)):
+            
             list2.append(horse_checkable_positions[o])
 
-        
     horse_checkable_positions = list2
-    check = False
     
     for x in range(len(rook_checkable_positions)):
         
         if(color == "white" and (board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] =="♜" or board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] == "♛")):
-            check = True
+            return rook_checkable_positions, True
         elif(color == "black" and (board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] == "♖" or board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] == "♕")):
-            check = True
+            return rook_checkable_positions, True
     
     for k in range(len(bish_checkable_positions)):
         if(color == "white" and (board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♝" or board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♛")):
-            check = True
+            return bish_checkable_positions, True
         elif(color == "black" and (board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♗" or board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♕")):
-            check = True
+            return bish_checkable_positions, True
     for z in range(len(horse_checkable_positions)):
         if(color == "white" and (board[horse_checkable_positions[z][0]][horse_checkable_positions[z][1]] == "♞")):
-            check = True
+            
+            return horse_checkable_positions, True
         elif(color == "black" and (board[horse_checkable_positions[z][0]][horse_checkable_positions[z][1]] == "♘")):
-            check = True
+            return horse_checkable_positions, True
     for i in range(len(pawn_checkable_positions)):
+
         if(color == "white" and (board[pawn_checkable_positions[i][0]][pawn_checkable_positions[i][1]] == "♟︎")):
-            check = True
+            return pawn_checkable_positions, True
         elif(color == "black" and (board[pawn_checkable_positions[i][0]][pawn_checkable_positions[i][1]] == "♙")):
-            check = True
-    return check
+            return pawn_checkable_positions, True
+    return [], False
+
+def same_color(board,position, color):
+    white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
+    black_pieces = ["♚", "♛", "♝", "♞", "♜", "♟︎"]
+    if(color == "white"):
+        if(board[position[0]][position[1]] in white_pieces):
+            return True
+        else:
+            return False
+    elif(color == "black"):
+        if(board[position[0]][position[1]] in black_pieces):
+            return True
+        else:
+            return False
+
 def find(board, x):
     for i in range(len(board)):
         for j in range(len(board[0])):
             if(board[i][j]==x):
                 return (i,j)
+def piece_taken(board, x, color):
+    f = []
+    pieces = []
+    print(x)
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if(board[i][j] != "0" and same_color(board, (i,j), color)):
+                z = find_all_moves(board, (i,j))
+                for k in range(len(z)):
+                    if(z[k] in x):
+                        f.append(z[k])
+                        pieces.append((i,j))
+    return f == [], f
 
 def count(board):
     white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
@@ -550,6 +578,23 @@ def count(board):
             if(board[i][j] in black_pieces):
                 bcount += 1
     return (wcount,bcount)
+
+def flip(arr):
+    rows = len(arr)-1
+    col = len(arr[0]) -1 
+    temp = 0
+    for i in range(0, rows):
+        if(i < (rows-1) - i):
+            for j in range(0,col):
+                temp = arr[i][j]
+                arr[i][j] = arr[(rows-1)-i][j]
+                arr[(rows-1)-i][j] = temp
+            
+        else:
+            break
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
 
 board = create(8)
 put_pieces(board)
@@ -590,6 +635,8 @@ background = pg.Surface((width, height))
 x = count(board)
 count1=Font.render(str(x[0]), False, (0,0,0))
 count2=Font.render(str(x[1]), False, (0,0,0))
+check_list = []
+list2 = []
 for y in range(0, height, tile_size):
     for x in range(0, width, tile_size):
         rect = (x, y, tile_size, tile_size)
@@ -603,13 +650,14 @@ for y in range(0, height, tile_size):
 game_exit = False
 origin1 = (0,0)
 v_moves = []
-force_move = False
+force_move_w = False
+force_move_b = False
 move = False
 while not game_exit:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             game_exit = True
-        if not force_move:
+        if not force_move_w and not force_move_b:
             if event.type == pg.MOUSEBUTTONDOWN:
                 if(event.button == 1):
                     pos = pg.mouse.get_pos()
@@ -626,11 +674,27 @@ while not game_exit:
                         board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
                         board[origin1[0]][origin1[1]] = "0"
                         move = True
-        else:
-            print('checked')
-            game_exit = True
-    
-    
+        elif(force_move_w):
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if(event.button == 1):
+                    pos = pg.mouse.get_pos()
+                    origin = encrypt(pos)
+                    if(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚" or piece_taken(board, check_list,"white")):
+                        origin1 = origin
+                        list1 = find_all_moves(board, origin)
+                        x, only_allow = piece_taken(board, check_list,"white")
+                        v_moves = intersection(list1, only_allow)
+                    else:
+                        print("Checkmate")
+                        game_exit = True
+                elif(event.button == 3):
+                    pos2 = pg.mouse.get_pos()
+                    move = encrypt(pos2)
+                    if(move in v_moves):
+                        board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
+                        board[origin1[0]][origin1[1]] = "0"
+                        move = True
+                    force_move_w = False
         
 
 
@@ -658,20 +722,26 @@ while not game_exit:
 
 
     if(move):
-        wcheck = check(board, find(board, "♔"), "white")
-        bcheck = check(board, find(board, "♚"), "black")
+        check_list, wcheck = check(board, find(board, "♔"), "white")
+        list2, bcheck = check(board, find(board, "♚"), "black")
         x = count(board)
         count1=Font.render(str(x[0]), False, (0,0,0))
         count2=Font.render(str(x[1]), False, (0,0,0))
-        
-        if(wcheck or bcheck):
-            force_move = True
+        #board.reverse() TODO: if want to reverse the board, need to fix find all moves method
+        if(wcheck):
+            print("checks")
+            force_move_w = True
             pass
+        elif(bcheck):
+            print("BLACK CHECK")
+            force_move_b = True
         move = False
         v_moves = []
     for i in range(len(v_moves)):
         pg.draw.circle(screen,(86, 182, 194),midpoint(decrypt(v_moves[i][1],v_moves[i][0])),15)
-        
+    
+
+    
     screen.blit(count1, (110, 80))
     screen.blit(count2, (110, 580))
         
