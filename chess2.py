@@ -63,23 +63,20 @@ def find_all_moves(board, origin):
     end = False
     
     if(piece == "♙"):
-        try:
+        if(origin[0]+1 <= 7):
             if(board[origin[0]+1][origin[1]] == "0"):
                 v_moves.append((origin[0]+1,origin[1]))
                 if(origin[0] == 1):
                     v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
-            if board[origin[0]+1][origin[1]+1] != "0" and board[origin[0]+1][origin[1]+1] not in white_pieces:
-                v_moves.append((origin[0]+1,origin[1]+1))
-            if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0 and board[origin[0]+1][origin[1]-1] not in white_pieces:
-                v_moves.append((origin[0]+1,origin[1]-1))
-        except(IndexError):
-            print("index error")
-            pass
+            if(origin[1]+1 <= 7):
+                if board[origin[0]+1][origin[1]+1] != "0" and board[origin[0]+1][origin[1]+1] not in white_pieces:
+                    v_moves.append((origin[0]+1,origin[1]+1))
+            if(origin[1]-1 >= 0):
+                if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0 and board[origin[0]+1][origin[1]-1] not in white_pieces:
+                    v_moves.append((origin[0]+1,origin[1]-1))
+        
     
     if(piece == "♟︎"):
-
-        try:
-            
             if(origin[0]-1 >= 0):
                 if(board[origin[0]-1][origin[1]] == "0"):
                     v_moves.append((origin[0]-1,origin[1]))
@@ -95,9 +92,6 @@ def find_all_moves(board, origin):
                         v_moves.append((origin[0]-2,origin[1]))
             if board[origin[0]-1][origin[1]-1] != "0" and origin[1]-1 >= 0 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]-1] not in black_pieces:
                 v_moves.append((origin[0]-1,origin[1]-1))
-        except(IndexError):
-            print("index error")
-            pass
     
     if(piece == "♖" or piece == "♜" or piece == "♕" or piece == "♛"):
             while(vertical_move == "0" and origin[0]+i <= 7): 
@@ -382,8 +376,225 @@ def AAfilledRoundedRect(surface,rect,color,radius=0.4):
     rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MAX)
 
     return surface.blit(rectangle,pos)
+def opposite_color(board,position, color):
+    white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
+    black_pieces = ["♚", "♛", "♝", "♞", "♜", "♟︎"]
+    if(color == "white"):
+        if(board[position[0]][position[1]] not in white_pieces):
+            return True
+        else:
+            return False
+    elif(color == "black"):
+        if(board[position[0]][position[1]] not in black_pieces):
+            return True
+        else:
+            return False
+def check(board, position, color):
+    if(color == "white"):
+        pawn_checkable_positions = [(position[0]+1,position[1]+1), (position[0]+1,position[1]-1)]
+    elif(color == "black"):
+        pawn_checkable_positions = [(position[0]-1,position[1]+1), (position[0]-1,position[1]-1)]
+    #adding horizontal moves
+    count = 1
+    rook_checkable_positions = []
+    end = False
+    #TODO: when a rook is right next to the king it does not work
+    while position[1]+count <= 7 and board[position[0]][position[1] + count] == "0" :
+        if(board[position[0]][position[1] + count] != "0"):
+            end = True
+
+        rook_checkable_positions.append((position[0],position[1]+count))
+
+        if(end and opposite_color(board, (position[0],position[1]+count), color)):
+            rook_checkable_positions.append((position[0],position[1]+count+1))
+        count += 1
+    end = False
+    count = 1
+    while position[1]-count >= 0 and board[position[0]][position[1]- count] == "0":
+        if(board[position[0]][position[1] - count] != "0"):
+            end = True
 
 
+        rook_checkable_positions.append((position[0],position[1]-count))
+
+        if(end and opposite_color(board, (position[0],position[1]-count), color)):
+            rook_checkable_positions.append((position[0],position[1]-count+1))
+
+        count += 1
+    #vertical moves
+    count = 1
+    end = False
+    while position[0]-count >= 0 and board[position[0]-count][position[1]] == "0":
+        if(board[position[0]-count][position[1]] != "0"):
+            end = True
+
+
+        rook_checkable_positions.append((position[0]-count,position[1]))
+        
+
+
+        if(end and opposite_color(board, (position[0]-count,position[1]), color)):
+            rook_checkable_positions.append((position[0]-count+1,position[1]))
+        count += 1
+    end = False
+    count = 1
+    while position[0]+count <= 7 and board[position[0]+count][position[1]] == "0":
+        if(board[position[0]+count][position[1]] != "0"):
+            end = True
+
+        rook_checkable_positions.append((position[0]+count,position[1]))
+        
+        if(end and opposite_color(board, (position[0]+count,position[1]), color)):
+            rook_checkable_positions.append((position[0]+count+1,position[1]))
+        count += 1
+    
+    #diagonal movement
+    end = False
+    count = 1
+    bish_checkable_positions = []
+    while position[1]+count <= 7 and position[0]+count <= 7 and board[position[0]+count][position[1]+count] != "♔" and board[position[0]+count][position[1]+count] != "♚": 
+        if(board[position[0]+count][position[1] + count] != "0"):
+            end = True
+        if(board[position[0]+count][position[1] + count] == "0" or (end and opposite_color(board, (position[0]+count,position[1]+count), color))):
+            bish_checkable_positions.append((position[0]+count,position[1]+count))
+
+        if(end):
+            break
+        count += 1
+    end = False
+    count = 1
+    while position[1]+count <= 7 and position[0]-count >= 0 and board[position[0]-count][position[1]+count] != "♔" and board[position[0]-count][position[1]+count] != "♚":
+        if(board[position[0]-count][position[1] + count] != "0"):
+            end = True
+        if(board[position[0]-count][position[1] + count] == "0" or (end and opposite_color(board, (position[0]-count,position[1]+count), color))):
+            bish_checkable_positions.append((position[0]-count,position[1]+count))
+
+        if(end):
+            break
+        count += 1
+    end = False
+    count = 1
+    while position[1]-count >= 0 and position[0]+count <= 7 and board[position[0]+count][position[1]-count] != "♔" and board[position[0]+count][position[1]-count] != "♚":
+        if(board[position[0]+count][position[1] - count] != "0"):
+            end = True
+        if(board[position[0]+count][position[1] - count] == "0" or (end and opposite_color(board, (position[0]+count,position[1]-count), color))):
+            bish_checkable_positions.append((position[0]+count,position[1]-count))
+
+        if(end):
+            break
+
+        count += 1
+    end = False
+    count = 1
+    while position[1]-count >= 0 and position[0]-count >= 0 and board[position[0]-count][position[1]-count] != "♔" and board[position[0]-count][position[1]-count] != "♚":
+        if(board[position[0]-count][position[1] - count] != "0"):
+            end = True
+        if(board[position[0]-count][position[1]-count] == "0" or (end and opposite_color(board, (position[0]-count,position[1]-count), color))):
+            bish_checkable_positions.append((position[0]-count,position[1]-count))
+
+        if(end):
+            break
+
+        count += 1
+
+    
+    horse_checkable_positions = [(position[0]+2,position[1]+1),(position[0]+1,position[1]+2),(position[0]+2,position[1]-1),(position[0]+1,position[1]-2),(position[0]-2,position[1]+1),(position[0]-1,position[1]+2),(position[0]-2,position[1]-1),(position[0]-1,position[1]-2)]
+    list2 = []
+    for o in range(len(horse_checkable_positions)):
+        if((horse_checkable_positions[o][0] <=7 and horse_checkable_positions[o][0] >= 0) and (horse_checkable_positions[o][1] <=7 and horse_checkable_positions[o][1] >= 0)):
+            
+            list2.append(horse_checkable_positions[o])
+
+    horse_checkable_positions = list2
+    
+    for x in range(len(rook_checkable_positions)):
+        
+        if(color == "white" and (board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] =="♜" or board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] == "♛")):
+            return rook_checkable_positions, True
+        elif(color == "black" and (board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] == "♖" or board[rook_checkable_positions[x][0]][rook_checkable_positions[x][1]] == "♕")):
+            return rook_checkable_positions, True
+    
+    for k in range(len(bish_checkable_positions)):
+        if(color == "white" and (board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♝" or board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♛")):
+            return bish_checkable_positions, True
+        elif(color == "black" and (board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♗" or board[bish_checkable_positions[k][0]][bish_checkable_positions[k][1]] == "♕")):
+            return bish_checkable_positions, True
+    for z in range(len(horse_checkable_positions)):
+        if(color == "white" and (board[horse_checkable_positions[z][0]][horse_checkable_positions[z][1]] == "♞")):
+            
+            return horse_checkable_positions, True
+        elif(color == "black" and (board[horse_checkable_positions[z][0]][horse_checkable_positions[z][1]] == "♘")):
+            return horse_checkable_positions, True
+    for i in range(len(pawn_checkable_positions)):
+
+        if(color == "white" and (board[pawn_checkable_positions[i][0]][pawn_checkable_positions[i][1]] == "♟︎")):
+            return pawn_checkable_positions, True
+        elif(color == "black" and (board[pawn_checkable_positions[i][0]][pawn_checkable_positions[i][1]] == "♙")):
+            return pawn_checkable_positions, True
+    return [], False
+
+def same_color(board,position, color):
+    white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
+    black_pieces = ["♚", "♛", "♝", "♞", "♜", "♟︎"]
+    if(color == "white"):
+        if(board[position[0]][position[1]] in white_pieces):
+            return True
+        else:
+            return False
+    elif(color == "black"):
+        if(board[position[0]][position[1]] in black_pieces):
+            return True
+        else:
+            return False
+
+def find(board, x):
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if(board[i][j]==x):
+                return (i,j)
+def piece_taken(board, x, color):
+    f = []
+    pieces = []
+    print(x)
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if(board[i][j] != "0" and same_color(board, (i,j), color)):
+                z = find_all_moves(board, (i,j))
+                for k in range(len(z)):
+                    if(z[k] in x):
+                        f.append(z[k])
+                        pieces.append((i,j))
+    return f == [], f
+
+def count(board):
+    white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
+    black_pieces = ["♚", "♛", "♝", "♞", "♜", "♟︎"]
+    wcount = 0
+    bcount = 0
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if(board[i][j] in white_pieces):
+                wcount += 1
+            if(board[i][j] in black_pieces):
+                bcount += 1
+    return (wcount,bcount)
+
+def flip(arr):
+    rows = len(arr)-1
+    col = len(arr[0]) -1 
+    temp = 0
+    for i in range(0, rows):
+        if(i < (rows-1) - i):
+            for j in range(0,col):
+                temp = arr[i][j]
+                arr[i][j] = arr[(rows-1)-i][j]
+                arr[(rows-1)-i][j] = temp
+            
+        else:
+            break
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
 
 board = create(8)
 put_pieces(board)
@@ -421,42 +632,69 @@ colors = itertools.cycle((WHITE, BLACK))
 tile_size = 60
 width, height = 8*tile_size, 8*tile_size
 background = pg.Surface((width, height))
-
+x = count(board)
+count1=Font.render(str(x[0]), False, (0,0,0))
+count2=Font.render(str(x[1]), False, (0,0,0))
+check_list = []
+list2 = []
 for y in range(0, height, tile_size):
     for x in range(0, width, tile_size):
         rect = (x, y, tile_size, tile_size)
-        if((x,y) == (0,0)):
+        #if((x,y) == (0,0)):
             #pg.draw.rect(background, next(colors), rect,  2, 3)
-            AAfilledRoundedRect(background,rect,next(colors), 1)
-        else:
-            pg.draw.rect(background, next(colors), rect)
+            #AAfilledRoundedRect(background,rect,next(colors), 1)
+        #else:
+        pg.draw.rect(background, next(colors), rect)
     next(colors)
 
 game_exit = False
 origin1 = (0,0)
 v_moves = []
+force_move_w = False
+force_move_b = False
 move = False
 while not game_exit:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             game_exit = True
-        if event.type == pg.MOUSEBUTTONDOWN:
-            if(event.button == 1):
-                pos = pg.mouse.get_pos()
-                print(pos)
-                origin = encrypt(pos)
-                origin1 = origin
-                list1 = find_all_moves(board, origin)
-                v_moves = list1
+        if not force_move_w and not force_move_b:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if(event.button == 1):
+                    pos = pg.mouse.get_pos()
+                    
+                    origin = encrypt(pos)
+                    origin1 = origin
+                    list1 = find_all_moves(board, origin)
+                    v_moves = list1
 
-            elif(event.button == 3):
-                pos2 = pg.mouse.get_pos()
-                move = encrypt(pos2)
-                if(move in v_moves):
-                    board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
-                    board[origin1[0]][origin1[1]] = "0"
-                    move = True
-
+                elif(event.button == 3):
+                    pos2 = pg.mouse.get_pos()
+                    move = encrypt(pos2)
+                    if(move in v_moves):
+                        board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
+                        board[origin1[0]][origin1[1]] = "0"
+                        move = True
+        elif(force_move_w):
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if(event.button == 1):
+                    pos = pg.mouse.get_pos()
+                    origin = encrypt(pos)
+                    if(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚" or piece_taken(board, check_list,"white")):
+                        origin1 = origin
+                        list1 = find_all_moves(board, origin)
+                        x, only_allow = piece_taken(board, check_list,"white")
+                        v_moves = intersection(list1, only_allow)
+                    else:
+                        print("Checkmate")
+                        game_exit = True
+                elif(event.button == 3):
+                    pos2 = pg.mouse.get_pos()
+                    move = encrypt(pos2)
+                    if(move in v_moves):
+                        board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
+                        board[origin1[0]][origin1[1]] = "0"
+                        move = True
+                    force_move_w = False
         
 
 
@@ -464,32 +702,48 @@ while not game_exit:
 
     screen.blit(background, (100, 100))
 
-    surface.blit(letter1, (105, 100))
-    surface.blit(letter2, (165, 100))
-    surface.blit(letter3, (225, 100))
-    surface.blit(letter4, (285, 100))
-    surface.blit(letter5, (345, 100))
-    surface.blit(letter6, (405, 100))
-    surface.blit(letter7, (465, 100))
-    surface.blit(letter8, (525, 100))
+    background.blit(letter1, (5, 0))
+    background.blit(letter2, (65, 0))
+    background.blit(letter3, (125, 0))
+    background.blit(letter4, (185, 0))
+    background.blit(letter5, (245, 0))
+    background.blit(letter6, (305, 0))
+    background.blit(letter7, (365, 0))
+    background.blit(letter8, (425, 0))
 
-    surface.blit(number8, (570, 140))
-    surface.blit(number7, (570, 200))
-    surface.blit(number6, (570, 260))
-    surface.blit(number5, (570, 320))
-    surface.blit(number4, (570, 380))
-    surface.blit(number3, (570, 440))
-    surface.blit(number2, (570, 500))
-    surface.blit(number1, (570, 560))
+    background.blit(number8, (470, 40))
+    background.blit(number7, (470, 100))
+    background.blit(number6, (470, 160))
+    background.blit(number5, (470, 220))
+    background.blit(number4, (470, 280))
+    background.blit(number3, (470, 340))
+    background.blit(number2, (470, 400))
+    background.blit(number1, (470, 460))
 
 
     if(move):
+        check_list, wcheck = check(board, find(board, "♔"), "white")
+        list2, bcheck = check(board, find(board, "♚"), "black")
+        x = count(board)
+        count1=Font.render(str(x[0]), False, (0,0,0))
+        count2=Font.render(str(x[1]), False, (0,0,0))
+        #board.reverse() TODO: if want to reverse the board, need to fix find all moves method
+        if(wcheck):
+            print("checks")
+            force_move_w = True
+            pass
+        elif(bcheck):
+            print("BLACK CHECK")
+            force_move_b = True
         move = False
         v_moves = []
     for i in range(len(v_moves)):
         pg.draw.circle(screen,(86, 182, 194),midpoint(decrypt(v_moves[i][1],v_moves[i][0])),15)
-        
+    
 
+    
+    screen.blit(count1, (110, 80))
+    screen.blit(count2, (110, 580))
         
     paint(board, screen)
     
