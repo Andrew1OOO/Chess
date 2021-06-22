@@ -17,8 +17,8 @@ def create(size):
         board.append(x)
         x = []
     return board
-def put_pieces(board):
 
+def put_pieces(board):
     for i in range(len(board)):
         for j in range(len(board[0])):
             if(i == 1):
@@ -62,26 +62,26 @@ def find_all_moves(board, origin):
     horizontal_move_1 = "0"
     end = False
     
-    if(piece == "♙"):
+    '''if(piece == "♙"):
         if(origin[0]+1 <= 7):
             if(board[origin[0]+1][origin[1]] == "0"):
                 v_moves.append((origin[0]+1,origin[1]))
-                if(origin[0] == 1):
+                if(origin[0] == 6):
                     v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
             if(origin[1]+1 <= 7):
                 if board[origin[0]+1][origin[1]+1] != "0" and board[origin[0]+1][origin[1]+1] not in white_pieces:
                     v_moves.append((origin[0]+1,origin[1]+1))
             if(origin[1]-1 >= 0):
                 if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0 and board[origin[0]+1][origin[1]-1] not in white_pieces:
-                    v_moves.append((origin[0]+1,origin[1]-1))
+                    v_moves.append((origin[0]+1,origin[1]-1))'''
         
     
-    if(piece == "♟︎"):
+    if(piece == "♟︎" or piece == "♙"):
             if(origin[0]-1 >= 0):
                 if(board[origin[0]-1][origin[1]] == "0"):
                     v_moves.append((origin[0]-1,origin[1]))
                 try:
-                    if board[origin[0]-1][origin[1]+1] != "0" and origin[1]+1 <= 7 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]+1] not in black_pieces:
+                    if board[origin[0]-1][origin[1]+1] != "0" and origin[1]+1 <= 7 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]+1]:
                         v_moves.append((origin[0]-1,origin[1]+1))
                 except:
                     pass
@@ -90,7 +90,7 @@ def find_all_moves(board, origin):
                 if(board[origin[0]-2][origin[1]] == "0"):
                     if(origin[0] == 6):
                         v_moves.append((origin[0]-2,origin[1]))
-            if board[origin[0]-1][origin[1]-1] != "0" and origin[1]-1 >= 0 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]-1] not in black_pieces:
+            if board[origin[0]-1][origin[1]-1] != "0" and origin[1]-1 >= 0 and origin[0]-1 >= 0 and board[origin[0]-1][origin[1]-1]:
                 v_moves.append((origin[0]-1,origin[1]-1))
     
     if(piece == "♖" or piece == "♜" or piece == "♕" or piece == "♛"):
@@ -390,10 +390,10 @@ def opposite_color(board,position, color):
         else:
             return False
 def check(board, position, color):
-    if(color == "white"):
+    '''    if(color == "white"):
         pawn_checkable_positions = [(position[0]+1,position[1]+1), (position[0]+1,position[1]-1)]
-    elif(color == "black"):
-        pawn_checkable_positions = [(position[0]-1,position[1]+1), (position[0]-1,position[1]-1)]
+        elif(color == "black"):'''
+    pawn_checkable_positions = [(position[0]-1,position[1]+1), (position[0]-1,position[1]-1)]
     #adding horizontal moves
     count = 1
     rook_checkable_positions = []
@@ -633,8 +633,8 @@ tile_size = 60
 width, height = 8*tile_size, 8*tile_size
 background = pg.Surface((width, height))
 x = count(board)
-count1=Font.render(str(x[0]), False, (0,0,0))
-count2=Font.render(str(x[1]), False, (0,0,0))
+count1=Font.render("White Pieces - " + str(x[0]), False, (0,0,0))
+count2=Font.render("Black Pieces - " + str(x[1]), False, (0,0,0))
 check_list = []
 list2 = []
 for y in range(0, height, tile_size):
@@ -661,7 +661,7 @@ while not game_exit:
             if event.type == pg.MOUSEBUTTONDOWN:
                 if(event.button == 1):
                     pos = pg.mouse.get_pos()
-                    
+                    print(pos)
                     origin = encrypt(pos)
                     origin1 = origin
                     list1 = find_all_moves(board, origin)
@@ -695,7 +695,27 @@ while not game_exit:
                         board[origin1[0]][origin1[1]] = "0"
                         move = True
                     force_move_w = False
-        
+        elif(force_move_b):
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if(event.button == 1):
+                    pos = pg.mouse.get_pos()
+                    origin = encrypt(pos)
+                    if(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚" or piece_taken(board, check_list,"black")):
+                        origin1 = origin
+                        list1 = find_all_moves(board, origin)
+                        x, only_allow = piece_taken(board, check_list,"black")
+                        v_moves = intersection(list1, only_allow)
+                    else:
+                        print("Checkmate")
+                        game_exit = True
+                elif(event.button == 3):
+                    pos2 = pg.mouse.get_pos()
+                    move = encrypt(pos2)
+                    if(move in v_moves):
+                        board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
+                        board[origin1[0]][origin1[1]] = "0"
+                        move = True
+                    force_move_w = False
 
 
     screen.fill((0 ,74, 158))
@@ -722,12 +742,13 @@ while not game_exit:
 
 
     if(move):
+        board.reverse() 
         check_list, wcheck = check(board, find(board, "♔"), "white")
         list2, bcheck = check(board, find(board, "♚"), "black")
         x = count(board)
-        count1=Font.render(str(x[0]), False, (0,0,0))
-        count2=Font.render(str(x[1]), False, (0,0,0))
-        #board.reverse() TODO: if want to reverse the board, need to fix find all moves method
+        count1=Font.render("Black Pieces - " + str(x[0]), False, (0,0,0))
+        count2=Font.render("White Pieces - " + str(x[1]), False, (0,0,0))
+        
         if(wcheck):
             print("checks")
             force_move_w = True
@@ -742,8 +763,8 @@ while not game_exit:
     
 
     
-    screen.blit(count1, (110, 80))
-    screen.blit(count2, (110, 580))
+    screen.blit(count1, (170, 40))
+    screen.blit(count2, (410, 40))
         
     paint(board, screen)
     
