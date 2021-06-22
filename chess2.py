@@ -646,7 +646,7 @@ for y in range(0, height, tile_size):
         #else:
         pg.draw.rect(background, next(colors), rect)
     next(colors)
-
+move_count = 0
 game_exit = False
 origin1 = (0,0)
 v_moves = []
@@ -674,6 +674,7 @@ while not game_exit:
                         board[move[0]][move[1]] = board[origin1[0]][origin1[1]] 
                         board[origin1[0]][origin1[1]] = "0"
                         move = True
+                        move_count += 1
         elif(force_move_w):
             if event.type == pg.MOUSEBUTTONDOWN:
                 if(event.button == 1):
