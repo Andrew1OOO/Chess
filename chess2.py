@@ -680,11 +680,17 @@ while not game_exit:
                 if(event.button == 1):
                     pos = pg.mouse.get_pos()
                     origin = encrypt(pos)
-                    if(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚" or piece_taken(board, check_list,"white")):
+                    if(piece_taken(board, check_list,"white")):
                         origin1 = origin
                         list1 = find_all_moves(board, origin)
                         x, only_allow = piece_taken(board, check_list,"white")
                         v_moves = intersection(list1, only_allow)
+                    elif(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚"):
+                        pos = pg.mouse.get_pos()
+                        origin = encrypt(pos)
+                        origin1 = origin
+                        list1 = find_all_moves(board, origin)
+                        v_moves = list1
                     else:
                         print("Checkmate")
                         game_exit = True
@@ -701,11 +707,17 @@ while not game_exit:
                 if(event.button == 1):
                     pos = pg.mouse.get_pos()
                     origin = encrypt(pos)
-                    if(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚" or piece_taken(board, check_list,"black")):
+                    if(piece_taken(board, check_list,"black")):
                         origin1 = origin
                         list1 = find_all_moves(board, origin)
                         x, only_allow = piece_taken(board, check_list,"black")
                         v_moves = intersection(list1, only_allow)
+                    elif(board[origin[0]][origin[1]] == "♔" or board[origin[0]][origin[1]] == "♚"):
+                        pos = pg.mouse.get_pos()
+                        origin = encrypt(pos)
+                        origin1 = origin
+                        list1 = find_all_moves(board, origin)
+                        v_moves = list1
                     else:
                         print("Checkmate")
                         game_exit = True
