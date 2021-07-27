@@ -62,19 +62,6 @@ def find_all_moves(board, origin):
     horizontal_move_1 = "0"
     end = False
     
-    '''if(piece == "♙"):
-        if(origin[0]+1 <= 7):
-            if(board[origin[0]+1][origin[1]] == "0"):
-                v_moves.append((origin[0]+1,origin[1]))
-                if(origin[0] == 6):
-                    v_moves.append((origin[0]+2,origin[1])) #TODO: make sure this is only for the first move
-            if(origin[1]+1 <= 7):
-                if board[origin[0]+1][origin[1]+1] != "0" and board[origin[0]+1][origin[1]+1] not in white_pieces:
-                    v_moves.append((origin[0]+1,origin[1]+1))
-            if(origin[1]-1 >= 0):
-                if board[origin[0]+1][origin[1]-1] != "0" and origin[1]-1 >= 0 and board[origin[0]+1][origin[1]-1] not in white_pieces:
-                    v_moves.append((origin[0]+1,origin[1]-1))'''
-        
     
     if(piece == "♟︎" or piece == "♙"):
             if(origin[0]-1 >= 0):
@@ -332,50 +319,12 @@ def encrypt(position):
 def decrypt(i,j):
     return 97+i*60, 105+j*60
 
-def change_rect_color(position):
-    pass
+
 def midpoint(i):
     x = (i[0] + (i[0]+65))/2
     y = (i[1]+ (i[1]+55))/2
     return (int(x),int(y))
-def AAfilledRoundedRect(surface,rect,color,radius=0.4):
 
-    """
-    AAfilledRoundedRect(surface,rect,color,radius=0.4)
-
-    surface : destination
-    rect    : rectangle
-    color   : rgb or rgba
-    radius  : 0 <= radius <= 1
-    """
-
-    rect         = Rect(rect)
-    color        = Color(*color)
-    alpha        = color.a
-    color.a      = 0
-    pos          = rect.topleft
-    rect.topleft = 0,0
-    rectangle    = Surface(rect.size,SRCALPHA)
-
-    circle       = Surface([min(rect.size)*3]*2,SRCALPHA)
-    draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
-    circle       = transform.smoothscale(circle,[int(min(rect.size)*radius)]*2)
-
-    radius              = rectangle.blit(circle,(0,0))
-    radius.bottomright  = rect.bottomright
-    rectangle.blit(circle,radius)
-    radius.topright     = rect.topright
-    rectangle.blit(circle,radius)
-    radius.bottomleft   = rect.bottomleft
-    rectangle.blit(circle,radius)
-
-    rectangle.fill((0,0,0),rect.inflate(-radius.w,0))
-    rectangle.fill((0,0,0),rect.inflate(0,-radius.h))
-
-    rectangle.fill(color,special_flags=BLEND_RGBA_MAX)
-    rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MAX)
-
-    return surface.blit(rectangle,pos)
 def opposite_color(board,position, color):
     white_pieces = ["♔", "♙", "♕", "♗", "♘", "♖"]
     black_pieces = ["♚", "♛", "♝", "♞", "♜", "♟︎"]
@@ -640,10 +589,7 @@ list2 = []
 for y in range(0, height, tile_size):
     for x in range(0, width, tile_size):
         rect = (x, y, tile_size, tile_size)
-        #if((x,y) == (0,0)):
-            #pg.draw.rect(background, next(colors), rect,  2, 3)
-            #AAfilledRoundedRect(background,rect,next(colors), 1)
-        #else:
+
         pg.draw.rect(background, next(colors), rect)
     next(colors)
 move_count = 0
